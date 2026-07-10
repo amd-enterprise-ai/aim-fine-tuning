@@ -1,0 +1,88 @@
+# Copyright © Advanced Micro Devices, Inc., or its affiliates.
+#
+# SPDX-License-Identifier: MIT
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aimfttk"
+description = "LLM finetuning library"
+version = "0.1.2"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "SiloGen" }]
+maintainers = [{ name = "SiloGen" }]
+classifiers = ["Programming Language :: Python"]
+dynamic = ["dependencies", "optional-dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.dynamic.optional-dependencies]
+dev = { file = ["requirements-dev.txt"] }
+
+[project.scripts]
+aimfttk = "aimfttk.cli:aimfttk_main_cli"
+merge_adapter = "aimfttk.cli:merge_adapter_cli"
+replace_tokens = "aimfttk.cli:replace_tokens_cli"
+generate = "aimfttk.cli:generation_cli"
+download_resources = "aimfttk.cli:download_resources_cli"
+create_vllm_compatible_adapter = "aimfttk.cli:create_vllm_compatible_adapter_cli"
+
+[tool.black]
+target-version = ['py310']
+line-length = 120
+include = '\.pyi?$'
+exclude = '''
+  /(
+  | \.git
+  )/
+  '''
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules"
+doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
+log_cli = "0"
+log_cli_level = "INFO"
+filterwarnings = [
+  "error",
+  'ignore:Pydantic V1 style `@validator` validators are deprecated.::huggingface_hub',
+  'ignore:TypedStorage is deprecated. It will be removed',
+  'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
+  # PEFT emits these following two warnings while trying to automagically figure out whether it should save the
+  # embedding layers or not
+  'ignore:Setting `save_embedding_layers` to `True::peft',
+  'ignore:Could not find a config file in ::peft',
+  'ignore:Passing the following arguments to `Accelerator`',
+  'ignore:`resume_download` is deprecated and will be removed in version 1.0.0.:FutureWarning',
+  # This comes from gpt-2 tests in test_e2e:
+  'ignore:`clean_up_tokenization_spaces` was not set. It will be set to `True` by default',
+  # From transformers, let them fix:
+  'ignore:`torch.cpu.amp.autocast\(args...\)` is deprecated.',
+  # transformers, depcrecation:
+  'ignore:SelectableGroups dict interface is deprecated',
+  'ignore:hf_xet.download_files() is deprecated',
+]
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_configs = true
+ignore_missing_imports = true
+strict = false
+pretty = true
+show_column_numbers = true
+no_implicit_optional = false
+explicit_package_bases = true
+scripts_are_modules = true
+check_untyped_defs = false
+files = ["src/**/*.py"]
+
+[tool.isort]
+profile = "black"
+py_version = 310
+line_length = 120
+known_first_party = [
+    "aimfttk",
+]

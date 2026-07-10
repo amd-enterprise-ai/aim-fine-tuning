@@ -1,0 +1,13 @@
+# Copyright © Advanced Micro Devices, Inc., or its affiliates.
+#
+# SPDX-License-Identifier: MIT
+
+black[d]
+coverage
+flake8
+isort
+jsonschema_markdown
+mypy
+pre-commit
+pytest
+types-redis

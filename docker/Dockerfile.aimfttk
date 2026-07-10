@@ -1,0 +1,42 @@
+# Copyright © Advanced Micro Devices, Inc., or its affiliates.
+#
+# SPDX-License-Identifier: MIT
+
+ARG BASE_IMAGE=amdenterpriseai/aimfttk:0.1.0-rocmdefault
+FROM ${BASE_IMAGE}
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    AIMFT_BACKEND=aimfttk \
+    AIMFT_METHOD=SFT \
+    AIMFT_RECIPES_ROOT=/opt/aim_fine_tune/recipes
+
+WORKDIR /workspace
+
+# Bundle recipe files in the image so training can run without mounting /input/recipes.
+COPY aim_fine_tune/recipes /opt/aim_fine_tune/recipes
+
+# Install aim-build runtime from the repository submodule.
+COPY third_party/aim-build /tmp/aim-build
+RUN python3 -m pip install --upgrade pip \
+    && python3 -m pip install /tmp/aim-build \
+    && rm -rf /tmp/aim-build
+
+# Install the aim_fine_tune CLI from the local source tree.
+COPY aim_fine_tune /tmp/aim_fine_tune
+RUN python3 -m pip install /tmp/aim_fine_tune \
+    && rm -rf /tmp/aim_fine_tune
+
+# Entry point that starts training execution.
+RUN cat <<'EOF' > /usr/local/bin/aimft-train-entrypoint.sh
+#!/usr/bin/env bash
+set -euo pipefail
+
+exec aim_fine_tune train --execute "$@"
+EOF
+
+RUN chmod +x /usr/local/bin/aimft-train-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/aimft-train-entrypoint.sh"]
+CMD []

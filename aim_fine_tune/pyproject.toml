@@ -1,0 +1,39 @@
+# Copyright © Advanced Micro Devices, Inc., or its affiliates.
+#
+# SPDX-License-Identifier: MIT
+
+[project]
+name = "aim_fine_tune"
+version = "0.2.1"
+description = "AIM fine-tuning cli"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aim-build",
+    "boto3>=1.39.0",
+    "click>=8.3.3",
+    "huggingface_hub>=0.34.0,<1.0",
+    "pydantic>=2.13.4",
+    "PyYAML>=6.0.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.0",
+]
+
+[project.scripts]
+aim_fine_tune = "aim_fine_tune.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aim_fine_tune"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../third_party/aim-build/src"]
+
+[tool.uv.sources]
+aim-build = { path = "../third_party/aim-build", editable = true }

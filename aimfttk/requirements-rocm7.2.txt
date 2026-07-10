@@ -1,0 +1,6 @@
+# Copyright © Advanced Micro Devices, Inc., or its affiliates.
+#
+# SPDX-License-Identifier: MIT
+
+torch==2.9.1+rocm7.2.0.lw.git7e1940d4  # From the rocm7.2 base image.
+triton==3.5.1+rocm7.2.0.gita272dfa8  # From the rocm7.2 base image.
