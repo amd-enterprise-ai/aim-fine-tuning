@@ -274,7 +274,6 @@ def test_full_sft_config():
       lr_scheduler_type: "cosine"
       max_steps: 50
       num_train_epochs: 23
-      overwrite_output_dir: true
       push_to_hub: False
       report_to: ["none"]
       save_strategy: "steps"
@@ -344,7 +343,6 @@ def test_full_config_resolve_training_arguments():
       lr_scheduler_type: "cosine"
       max_steps: 50
       num_train_epochs: 23
-      overwrite_output_dir: true
       push_to_hub: False
       report_to: ["none"]
       save_strategy: "steps"
@@ -416,14 +414,13 @@ def test_dpo_config():
       lr_scheduler_type: "cosine"
       max_steps: 50
       num_train_epochs: 23
-      overwrite_output_dir: true
       push_to_hub: False
       report_to: ["none"]
       save_strategy: "steps"
       save_steps: 5
       eval_strategy: "epoch"
       beta: 0.01
-      loss_type: "sigmoid"
+      loss_type: ["sigmoid"]
       max_prompt_length: 123
     peft_conf:
       peft_type: "LORA"

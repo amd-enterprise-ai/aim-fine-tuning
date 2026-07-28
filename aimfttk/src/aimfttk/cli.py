@@ -16,6 +16,7 @@ from aimfttk.config import DPOExperimentConfig, GenerationConfig, SFTExperimentC
 from aimfttk.dpo import run_dpo
 from aimfttk.generate import generate
 from aimfttk.sft import run_sft
+from aimfttk.utils.conventions import ensure_tensorboard_logging_dir
 from aimfttk.utils.merge_adapter import merge_and_save
 from aimfttk.utils.model import should_remove_non_lora_layers
 from aimfttk.utils.replace_tokens import modify_tokenizer_files
@@ -70,6 +71,7 @@ def aimfttk_main_cli(argv=None):
     parser.add_argument("config", type=str, help="Path to the experiment's YAML config file.")
     args = parser.parse_args(argv)
     logging.basicConfig(level=args.logging_level)
+    ensure_tensorboard_logging_dir()
     config_class, runner = METHODS[args.method]
     config = load_config(config_class, args.config)
     setup_tracking(config, args)

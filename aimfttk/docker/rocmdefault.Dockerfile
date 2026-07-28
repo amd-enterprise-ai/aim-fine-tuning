@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-FROM rocm/vllm:rocm7.0.0_vllm_0.11.2_20251210
+FROM vllm/vllm-openai-rocm:v0.23.0
 
 ARG DEBIAN_FRONTEND=noninteractive
 

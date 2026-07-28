@@ -9,11 +9,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "aimfttk"
 description = "LLM finetuning library"
-version = "0.1.2"
+version = "0.2.0"
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [{ name = "SiloGen" }]
-maintainers = [{ name = "SiloGen" }]
+authors = [{ name = "AMD Silo AI" }]
+maintainers = [{ name = "AMD Silo AI" }]
 classifiers = ["Programming Language :: Python"]
 dynamic = ["dependencies", "optional-dependencies"]
 
@@ -64,6 +64,8 @@ filterwarnings = [
   # transformers, depcrecation:
   'ignore:SelectableGroups dict interface is deprecated',
   'ignore:hf_xet.download_files() is deprecated',
+  # PEFT v0.19+ warning about weight tying:
+  'ignore:Model has `tie_word_embeddings=True`::peft',
 ]
 
 [tool.mypy]

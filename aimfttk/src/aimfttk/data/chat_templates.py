@@ -127,11 +127,7 @@ def tokenize_with_chat_template(dataset, tokenizer, truncation=False, max_len=No
         Keeps tokenizer in scope as default argument
         """
         tokenized = tokenizer.apply_chat_template(
-            example["messages"],
-            tokenize=True,
-            truncation=truncation,
-            max_length=max_len,
-            return_dict=True,
+            example["messages"], tokenize=True, truncation=truncation, max_length=max_len
         )
         tokenized["length"] = len(tokenized["input_ids"])
         return tokenized

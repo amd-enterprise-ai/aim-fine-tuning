@@ -109,9 +109,7 @@ def subsetup_tokenizer(
                 MSG = "Not allowing chat template to be overwritten, but the chat template stored on the tokenizer "
                 MSG += "does not match the one specified!"
                 raise ValueError(MSG)
-        num_new_tokens = tokenizer.add_special_tokens(
-            chat_template.special_tokens, replace_additional_special_tokens=False
-        )
+        num_new_tokens = tokenizer.add_special_tokens(chat_template.special_tokens, replace_extra_special_tokens=False)
         inference_end_token = chat_template.assistant_end
     if tokenizer_args.tokenizer_type is None:
         handle_missing_pad_token(tokenizer, missing_pad_token_strategy)

@@ -4,15 +4,15 @@
 
 [project]
 name = "aim_fine_tune"
-version = "0.2.2"
+version = "0.2.3"
 description = "AIM fine-tuning cli"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "aim-build",
+    #"aim-build",
     "boto3>=1.39.0",
     "click>=8.3.3",
-    "huggingface_hub>=0.34.0,<1.0",
+    "huggingface_hub>=1.0",
     "pydantic>=2.13.4",
     "PyYAML>=6.0.2",
 ]

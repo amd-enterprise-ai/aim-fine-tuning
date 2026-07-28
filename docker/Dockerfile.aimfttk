@@ -17,10 +17,10 @@ WORKDIR /workspace
 # Bundle recipe files in the image so training can run without mounting /input/recipes.
 COPY aim_fine_tune/recipes /opt/aim_fine_tune/recipes
 
-# Install aim-build runtime from the repository submodule.
+# Install aim-build runtime from the repository submodule, no dependencies (handle elsewhere)
 COPY third_party/aim-build /tmp/aim-build
 RUN python3 -m pip install --upgrade pip \
-    && python3 -m pip install /tmp/aim-build \
+    && python3 -m pip install --no-deps /tmp/aim-build \
     && rm -rf /tmp/aim-build
 
 # Install the aim_fine_tune CLI from the local source tree.

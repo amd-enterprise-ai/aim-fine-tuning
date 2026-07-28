@@ -6,13 +6,15 @@ accelerate==1.9.0
 bitsandbytes==0.49.2
 datasets==3.2.0
 deepspeed
+huggingface_hub>=1.0.0,<2.0  # Required for transformers v5
 mistral_common==1.11.3
+mistral_common
 mlflow==3.11.1
-peft==0.16.0
+peft>=0.19.0  # Required for transformers v5 compatibility
 pydantic>=2.5,<3.0
 ruamel.yaml>0.15.0,<1.0
 sentencepiece>=0.1.0,<1.0.0
 tensorboard
-torch==2.6.0  # If torch version is changed, also update in docker/rocm-silogen-aimfttk-base.Dockerfile
-transformers[tokenizers]==4.57.3  # If transformers version is changed, also update in docker/rocm-silogen-aimfttk-base.Dockerfile
-trl==0.13.0
+torch==2.6.0  # If torch version is changed, also update in docker/rocmdefault.Dockerfile
+transformers[tokenizers]>=5.0.0,<6.0  # If transformers version is changed, also update in docker/rocmdefault.Dockerfile
+trl>=0.15.0  # Required for transformers v5 compatibility

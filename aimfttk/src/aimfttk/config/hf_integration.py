@@ -82,10 +82,6 @@ class AIMFTTKTrainingArguments(BaseConfig, transformers.TrainingArguments):
         default=local_checkpoints_dir.as_posix(),
         description="The output directory where checkpoints will be written. Should be left as default, which is ./checkpoints",
     )
-    logging_dir: str = Field(
-        default=local_logs_dir.as_posix(),
-        description="The output directory where logs (like tensorboard outputs) will be written. Should be left as default, which is ./logs",
-    )
 
     # Since we're using pydantic BaseModel-style (as opposed to pydantic dataclasses), we need to run the
     # TrainingArguments __post_init__ in model_post_init explicitly
@@ -164,6 +160,8 @@ class AIMFTTKDPOConfig(BaseConfig, DPOConfig):
     # These class variables get added during post_init. The user cannot provide these as inputs.
     distributed_state: DisallowedInput = Field(default=None, exclude=True)
     deepspeed_plugin: DisallowedInput = Field(default=None, exclude=True)
+    mixed_precision: DisallowedInput = Field(default=None, exclude=True)  # Added in transformers v5
+    fsdp_plugin_args: DisallowedInput = Field(default=None, exclude=True)  # Added in transformers v5
 
     # Pydantic complains for inherited dataclasses with default_factories, need to redefine
     lr_scheduler_kwargs: Optional[Union[dict, str]] = field(
