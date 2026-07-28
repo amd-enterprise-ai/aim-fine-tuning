@@ -44,7 +44,7 @@ defaults:
   save_interval: 500
 
 engine_args:
-  distributed_type: "auto-deepspeed-stage1"
+  distributed_type: "auto-single-process"
   finetuning_config:
     data_conf:
       chat_template_name: "keep-original"

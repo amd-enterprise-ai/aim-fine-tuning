@@ -47,7 +47,7 @@ defaults:
 
 
 engine_args:
-  distributed_type: "auto-deepspeed-stage3"
+  distributed_type: "auto-single-process"
   finetuning_config:
     training_args:
       max_grad_norm: 1.0
