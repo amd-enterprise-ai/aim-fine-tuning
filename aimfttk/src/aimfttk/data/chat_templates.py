@@ -153,7 +153,7 @@ def apply_chat_template_to_preference_data(dataset, tokenizer):
         The length is added based on the total length (prompt + chosen + rejected).
         Keeps tokenizer in scope as default argument.
         """
-        prompt = tokenizer.apply_chat_template(example["prompt_messages"], tokenize=False)
+        prompt = tokenizer.apply_chat_template(example["prompt_messages"], tokenize=False, add_generation_prompt=True)
         # First we use the concatenated messages lists (prompt + chosen, prompt + rejected), so that any chat template
         # processing regarding e.g. start of sentence gets applied just once.
         chosen_with_prompt = tokenizer.apply_chat_template(

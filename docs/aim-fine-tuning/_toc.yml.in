@@ -1,0 +1,52 @@
+# Copyright Ã‚Â© Advanced Micro Devices, Inc., or its affiliates.
+#
+# SPDX-License-Identifier: MIT
+
+defaults:
+  numbered: false
+  maxdepth: 2
+root: README
+subtrees:
+  - entries:
+      - file: quickstart
+        title: Quickstart
+      - file: supported-models
+        title: Supported models
+      - file: guides/guides
+        title: Guides
+        subtrees:
+          - entries:
+              - file: guides/standalone-finetuning
+                title: Run standalone fine-tuning on Kubernetes
+      - file: concepts/concepts
+        title: Concepts
+        subtrees:
+          - entries:
+              - file: concepts/training-methods
+                title: Training methods
+              - file: concepts/cli
+                title: Command-line interface
+              - file: concepts/engines
+                title: Engines
+              - file: concepts/recipes
+                title: Recipes
+      - file: reference/reference
+        title: Reference
+        subtrees:
+          - entries:
+              - file: reference/standard-interfaces
+                title: Standard interfaces
+                subtrees:
+                  - entries:
+                      - file: reference/standard-sft-image-interface
+                        title: Standardized SFT image interface
+              - file: reference/cli
+                title: CLI reference
+              - file: reference/recipe-schema
+                title: Recipe schema
+              - file: reference/engines
+                title: Engines
+                subtrees:
+                  - entries:
+                      - file: reference/engines/aimfttk
+                        title: AIM Fine-tuning Toolkit (aimfttk)

@@ -94,6 +94,7 @@ from aimfttk.data import (
 from aimfttk.data.collator import DataCollatorForCompletionOnlyLM
 from aimfttk.model import get_model, subsetup_handle_peft
 from aimfttk.utils.checkpoints import handle_checkpoint_resume
+from aimfttk.utils.structured_logging import StructuredTrainingLogCallback
 
 logger = logging.get_logger("sft")
 
@@ -234,6 +235,7 @@ def setup_sft_trainer(exp_conf: SFTExperimentConfig):
         eval_dataset=valid_data,
         data_collator=data_collator,
         processing_class=tokenizer,
+        callbacks=[StructuredTrainingLogCallback()],
     )
 
     return trainer

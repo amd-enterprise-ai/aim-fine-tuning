@@ -4,8 +4,12 @@
 
 **
 !pyproject.toml
+!uv.lock
 !README.md
 !src/
 !src/**
 !recipes/
 !recipes/**
+!third_party/
+!third_party/aim-build/
+!third_party/aim-build/**

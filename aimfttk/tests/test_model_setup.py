@@ -4,8 +4,9 @@
 
 import pytest
 import torch
+import transformers
 
-from aimfttk.model import _init_new_rows_by_avg_sample
+from aimfttk.model import _init_new_rows_by_avg_sample, get_model
 
 try:
     # Use a deterministic SPD matrix so availability detection is stable across runs.
@@ -13,6 +14,24 @@ try:
     CHOLESKY_AVAILABLE = True
 except RuntimeError:
     CHOLESKY_AVAILABLE = False
+
+
+@pytest.mark.parametrize("model_class_name", ["AutoModelForCausalLM", "AutoModelForImageTextToText"])
+def test_get_model_uses_configured_model_class(monkeypatch, model_class_name):
+    calls = []
+
+    class FakeModelClass:
+        @classmethod
+        def from_pretrained(cls, model_name_or_path, **kwargs):
+            calls.append((model_name_or_path, kwargs))
+            return cls
+
+    monkeypatch.setattr(transformers, model_class_name, FakeModelClass)
+
+    model = get_model("model-path", {"model_class": model_class_name, "dtype": "auto"})
+
+    assert model is FakeModelClass
+    assert calls == [("model-path", {"dtype": "auto"})]
 
 
 @pytest.mark.skipif(not CHOLESKY_AVAILABLE, reason="Cholesky decomposition not available in this PyTorch installation")

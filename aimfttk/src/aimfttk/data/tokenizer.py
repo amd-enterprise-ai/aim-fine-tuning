@@ -49,7 +49,7 @@ def wrap_for_save_in_inference_mode(tokenizer: transformers.PreTrainedTokenizerB
         add_eos_token=False
         eos_token = inference_end_token
     """
-    if hasattr(tokenizer, "_silogen_mod_save_pretrained"):
+    if hasattr(tokenizer, "_aimfttk_mod_save_pretrained"):
         raise RuntimeError("Trying to wrap tokenizer saver a second time!")
 
     @wraps(tokenizer.save_pretrained)
@@ -73,13 +73,13 @@ def wrap_for_save_in_inference_mode(tokenizer: transformers.PreTrainedTokenizerB
                 logger.info(f"Setting tokenizer.{attr} to {value} for inference")
                 setattr(self, attr, value)
         # Run saving method:
-        call_output = self._silogen_mod_save_pretrained(*args, **kwargs)
+        call_output = self._aimfttk_mod_save_pretrained(*args, **kwargs)
         # Recall previous state:
         for attr, recalled in state.items():
             setattr(self, attr, recalled)
         return call_output
 
-    tokenizer._silogen_mod_save_pretrained = tokenizer.save_pretrained
+    tokenizer._aimfttk_mod_save_pretrained = tokenizer.save_pretrained
     tokenizer.save_pretrained = inference_mode_wrapper.__get__(tokenizer)  # type: ignore
 
 

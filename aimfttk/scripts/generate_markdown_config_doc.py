@@ -19,7 +19,7 @@ args = parser.parse_args()
 # This script generates a markdown document from the pydantic model of the aimfttk config,
 # by converting it to a json schema and then to markdown.
 
-# The output is used for the silogen-aimfttk-engine documentation in the silogen/ai-workloads repository.
+# The output is used for the aimfttk-engine documentation.
 
 # NB: some of the naming in the output uses JSON conventions, which might be misleading.
 # E.g., "number" and "null" rather than "float" and "None". This should perhaps be modified.
@@ -79,9 +79,9 @@ with open("requirements.txt") as f:
     if trl_version is None:
         raise ValueError("Could not find trl exact version in requirements.txt")
 # Custom section to use for AIMFTTKTrainingArguments and AIMFTTKDPOConfig
-silogen_training_args_section = """AIMFTTKTrainingArguments
+aimfttk_training_args_section = """AIMFTTKTrainingArguments
 
-HuggingFace TrainingArguments as Config with additional SiloGen conventions
+HuggingFace TrainingArguments as Config with additional conventions
 
 The list of training arguments is best available online (the version might not be up-to-date here):
 https://huggingface.co/docs/transformers/v{transformers_version}/en/main_classes/trainer#transformers.TrainingArguments
@@ -91,9 +91,9 @@ has computed properties like true training batch size etc.)
 """.format(
     transformers_version=transformers_version
 )
-silogen_dpo_config_section = """AIMFTTKDPOConfig
+aimfttk_dpo_config_section = """AIMFTTKDPOConfig
 
-HuggingFace TRL DPOConfig as Config with additional SiloGen conventions
+HuggingFace TRL DPOConfig as Config with additional conventions
 
 The list of training arguments is best available online (the version might not be up-to-date here):
 https://huggingface.co/docs/transformers/v{transformers_version}/en/main_classes/trainer#transformers.TrainingArguments
@@ -108,9 +108,9 @@ has computed properties like true training batch size etc.)
 )
 sections = markdown.split("\n## ")
 sections = [
-    silogen_training_args_section if section.startswith("AIMFTTKTrainingArguments") else section for section in sections
+    aimfttk_training_args_section if section.startswith("AIMFTTKTrainingArguments") else section for section in sections
 ]
-sections = [silogen_dpo_config_section if section.startswith("AIMFTTKDPOConfig") else section for section in sections]
+sections = [aimfttk_dpo_config_section if section.startswith("AIMFTTKDPOConfig") else section for section in sections]
 markdown = "\n## ".join(section for section in sections if section.split(maxsplit=1)[0] not in to_remove)
 
 # Remove the repeated "Additional properties are not allowed" mentions

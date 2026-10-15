@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from aim_fine_tune.backends.aimfttk import AimfttkBackendAdapter
+from aim_fine_tune.backends.aimfttk.adapter import AimfttkBackendAdapter
 from aim_fine_tune.backends.base import BackendAdapter
 
 _aimfttk_adapter = AimfttkBackendAdapter()
@@ -16,6 +16,14 @@ _ADAPTERS: dict[str, BackendAdapter] = {
 
 def get_backend_names() -> tuple[str, ...]:
     return tuple(sorted(_ADAPTERS))
+
+
+def get_backend_method_names(name: str) -> tuple[str, ...]:
+    return get_backend_adapter(name).supported_methods
+
+
+def get_training_method_names() -> tuple[str, ...]:
+    return tuple(sorted({method for adapter in _ADAPTERS.values() for method in adapter.supported_methods}))
 
 
 def get_backend_adapter(name: str) -> BackendAdapter:

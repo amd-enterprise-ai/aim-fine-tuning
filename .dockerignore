@@ -10,16 +10,17 @@
 !docker/Dockerfile.aimfttk
 !LICENSE
 
-# CLI package source and packaged recipes.
+# CLI package source.
 !aim_fine_tune/
 !aim_fine_tune/pyproject.toml
+!aim_fine_tune/uv.lock
 !aim_fine_tune/README.md
 !aim_fine_tune/src/
 !aim_fine_tune/src/**
-!aim_fine_tune/recipes/
-!aim_fine_tune/recipes/**
+!aim_fine_tune/third_party/
+!aim_fine_tune/third_party/aim-build/
+!aim_fine_tune/third_party/aim-build/**
 
-# Runtime source from git submodule.
-!third_party/
-!third_party/aim-build/
-!third_party/aim-build/**
+# Build manifest and the staged recipe catalog, bundled by the release target.
+!build-staging/
+!build-staging/**

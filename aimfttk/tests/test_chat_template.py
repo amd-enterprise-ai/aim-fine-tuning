@@ -43,7 +43,7 @@ def get_pref_dataset():
 
 
 class MockTokenizerWithChatTemplate:
-    def apply_chat_template(self, messages, tokenize=False):
+    def apply_chat_template(self, messages, tokenize=False, add_generation_prompt=False):
         return "".join(message["content"] + "|" for message in messages)
 
     def __call__(self, text):

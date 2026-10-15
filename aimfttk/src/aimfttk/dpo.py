@@ -74,8 +74,8 @@ import logging
 
 import trl
 
-import aimfttk
 import aimfttk.utils.running_process_opts as running_process_opts
+from aimfttk.config import data
 from aimfttk.config.experiment import DPOExperimentConfig
 from aimfttk.data import (
     apply_chat_template_to_preference_data,
@@ -87,6 +87,7 @@ from aimfttk.data import (
 )
 from aimfttk.model import get_model, subsetup_handle_peft
 from aimfttk.utils.checkpoints import handle_checkpoint_resume
+from aimfttk.utils.structured_logging import StructuredTrainingLogCallback
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +102,7 @@ def subsetup_preference_training_data(exp_conf: DPOExperimentConfig, tokenizer):
 
 def subsetup_preference_validation_data(exp_conf: DPOExperimentConfig, tokenizer, train_data):
     """Setup step: Validation data"""
-    if exp_conf.data_conf.validation_data.type == aimfttk.config.data.DataInputType.AUTO_SPLIT:
+    if exp_conf.data_conf.validation_data.type == data.DataInputType.AUTO_SPLIT:
         logger.warning("Using a split of the training data for validation.")
         train_data, valid_data = handle_auto_split(exp_conf.data_conf.validation_data, train_data)
     else:
@@ -149,6 +150,7 @@ def setup_dpo_trainer(exp_conf: DPOExperimentConfig):
         train_dataset=train_data,
         eval_dataset=valid_data,
         processing_class=tokenizer,
+        callbacks=[StructuredTrainingLogCallback()],
     )
     return trainer
 

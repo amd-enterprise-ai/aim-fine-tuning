@@ -9,7 +9,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # This image is designed to be run as non-root user
 ENV USER_NAME=user
 ENV USER_ID=1000
-ENV GROUP_NAME=silogen
+ENV GROUP_NAME=aimfttk
 ENV GROUP_ID=1000
 RUN groupadd -g ${GROUP_ID} ${GROUP_NAME} && \
     useradd -m -g ${GROUP_ID} -u ${USER_ID} ${USER_NAME} \

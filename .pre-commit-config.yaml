@@ -1,0 +1,56 @@
+# Copyright © Advanced Micro Devices, Inc., or its affiliates.
+#
+# SPDX-License-Identifier: MIT
+
+# Global exclude pattern applies to all hooks
+exclude: \.patch$
+
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+  - id: check-json
+  - id: check-yaml
+    exclude: templates
+  - id: end-of-file-fixer
+  - id: requirements-txt-fixer
+  - id: trailing-whitespace
+
+- repo: https://github.com/psf/black
+  rev: 25.1.0
+  hooks:
+  - id: black
+    language_version: python3.12
+    args: [ "--config=pyproject.toml" ]
+
+- repo: https://github.com/pycqa/flake8
+  rev: 7.3.0
+  hooks:
+  - id: flake8
+    args: [ "--config=.flake8" ]
+
+- repo: https://github.com/pycqa/isort
+  rev: 6.0.1
+  hooks:
+  - id: isort
+    name: isort (python)
+    args: [ "--settings-path=pyproject.toml" ]
+
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.17.1
+  hooks:
+  - id: mypy
+    exclude: ^docs/
+    args: [ "--config-file=pyproject.toml" ]
+    language_version: python3.12
+    additional_dependencies:
+    - types-PyYAML
+    - types-requests
+    - types-pytz
+
+- repo: https://github.com/astral-sh/uv-pre-commit
+  rev: 0.12.13
+  hooks:
+  - id: uv-lock
+    files: aim_fine_tune/pyproject.toml
+    args: [--project, aim_fine_tune]

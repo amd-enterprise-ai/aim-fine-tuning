@@ -113,7 +113,7 @@ def sort_longest_first(data):
     else:
         # HuggingFace datasets don't have a way to sort on a computed property, so we need to add a temporary column and
         # sort on that.
-        tmp_key = "__silogen_auto_added_length"
+        tmp_key = "__aimfttk_auto_added_length"
 
         def _add_length(example):
             example[tmp_key] = len(example["input_ids"])

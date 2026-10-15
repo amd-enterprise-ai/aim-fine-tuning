@@ -1,4 +1,4 @@
-[submodule "third_party/aim-build"]
-	path = third_party/aim-build
+[submodule "aim_fine_tune/third_party/aim-build"]
+	path = aim_fine_tune/third_party/aim-build
 	url = git@github.com:amd-enterprise-ai/aim-build.git
 	branch = main

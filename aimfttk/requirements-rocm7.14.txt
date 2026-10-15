@@ -1,0 +1,13 @@
+# Copyright © Advanced Micro Devices, Inc., or its affiliates.
+#
+# SPDX-License-Identifier: MIT
+
+
+datasets==4.4.0
+torch==2.11.0+rocm7.14.1  # From the rocm7.14 base image.
+triton==3.8.0+git4cff872c.rocm7.14.1  # From the rocm7.14 base image.
+
+# dill==0.4.1 is installed separately in the Dockerfile after the main
+# requirements install, since datasets==4.4.0 pins dill<0.4.1 and a single
+# resolver invocation with both constraints fails even though dill==0.4.1
+# works fine with datasets==4.4.0 in practice.

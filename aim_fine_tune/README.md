@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 Today the CLI supports:
 
 - backend: `aimfttk`
-- method: `sft`
+- methods: `sft`
 - train modes: `dry-run` and `execute`
 - local model, dataset, and output paths
 - recipe discovery and recipe-based launch generation
@@ -28,6 +28,12 @@ uv run aim_fine_tune --help
 uv run aim_fine_tune train --help
 uv run aim_fine_tune download --help
 uv run aim_fine_tune list-recipes --help
+```
+
+To enable S3 dataset downloads, install the optional download dependency:
+
+```bash
+uv sync --extra download
 ```
 
 ## Commands
@@ -51,8 +57,8 @@ Common optional inputs:
 | --- | --- | --- |
 | `--validation-data-path` | `AIMFT_VALIDATION_DATA_PATH` | Optional validation dataset file |
 | `--recipe-id` | `AIMFT_RECIPE_ID` | Use one specific recipe by unique recipe ID (`metadata.recipeId`) |
-| `--recipes-root` | `AIMFT_RECIPES_ROOT` | Override the default recipe directory |
-| `--allow-incompatible-recipe` | `AIMFT_ALLOW_INCOMPATIBLE_RECIPE` | Allow dry-run rendering with an explicit recipe even when the local accelerator setup does not match |
+| `--extra-recipes` | `AIMFT_EXTRA_RECIPES` | Directory of extra recipes added to the built-in ones |
+| `--recipe-path` | `AIMFT_RECIPE_PATH` | Use this recipe file directly, without the recipe catalog or compatibility checks |
 
 Training tuning and backend options are configured through environment variables such as `AIMFT_USE_ADAPTER`, `AIMFT_EPOCHS`, `AIMFT_SEED`, `AIMFT_EVALUATION_INTERVAL`, `AIMFT_LOGGING_INTERVAL`, `AIMFT_LEARNING_RATE`, `AIMFT_LEARNING_RATE_WARMUP_STEPS`, `AIMFT_PER_ACCELERATOR_BATCH_SIZE`, `AIMFT_GRADIENT_ACCUMULATION`, `AIMFT_LORA_ALPHA`, `AIMFT_LORA_DROPOUT`, `AIMFT_LORA_RANK`, `AIMFT_MAX_CONTEXT_LENGTH`, `AIMFT_NUM_ACCELERATORS`, and `AIMFT_ENGINE_ARGS`.
 
@@ -69,7 +75,7 @@ For environment variables, string values can be passed directly. Non-string valu
 
 ## Download Assets
 
-Use `download` when the model comes from Hugging Face and the dataset comes from S3 or MinIO.
+Use `download` when the model comes from Hugging Face and the dataset comes from a Hugging Face dataset repository, S3, or MinIO.
 
 Model download inputs:
 
@@ -84,7 +90,9 @@ Dataset download inputs:
 
 | CLI flag | Environment variable | Meaning |
 | --- | --- | --- |
-| `--dataset-s3-uri` | `AIMFT_DATASET_S3_URI` | Dataset source such as `s3://bucket/path` |
+| `--hf-dataset-id` | `AIMFT_HF_DATASET_ID` | Hugging Face dataset repository, downloaded whole; uses the model's token |
+| `--hf-dataset-revision` | `AIMFT_HF_DATASET_REVISION` | Optional dataset branch, tag, or commit |
+| `--dataset-s3-uri` | `AIMFT_DATASET_S3_URI` | Dataset source such as `s3://bucket/path`, instead of `--hf-dataset-id` |
 | `--dataset-output-path` | `AIMFT_DATASET_OUTPUT_PATH` | Local dataset output directory |
 | `--s3-endpoint-url` | `AIMFT_S3_ENDPOINT_URL`, `AWS_ENDPOINT_URL`, or `BUCKET_STORAGE_HOST` | S3 or MinIO endpoint |
 | `--s3-access-key-id` | `AIMFT_S3_ACCESS_KEY_ID`, `AWS_ACCESS_KEY_ID`, or `BUCKET_STORAGE_ACCESS_KEY` | Access key |
@@ -118,29 +126,29 @@ uv run aim_fine_tune list-recipes
 uv run aim_fine_tune list-recipes --compatible-only
 uv run aim_fine_tune list-recipes --aim-id google/gemma-3-27b-it
 uv run aim_fine_tune list-recipes --output-format json
-uv run aim_fine_tune list-recipes --recipes-root /path/to/recipes
+uv run aim_fine_tune list-recipes --extra-recipes /path/to/extra-recipes
 ```
 
 Use `--recipe-id` with `train` to pin one specific recipe.
 
-If you want to render a specific recipe on a machine that does not have the target accelerator setup, you can bypass compatibility checks for dry-run only:
+The built-in recipes are always read from `/opt/aim_fine_tune/builtin_recipes`, where AIMFT images install them. To add your
+own, mount a directory of recipe YAML files with its own `aimft-recipe-compatibility.yaml` and point `--extra-recipes`
+or `AIMFT_EXTRA_RECIPES` at it. Extra recipes are selected like built-in ones; one with the same recipe ID replaces the
+built-in recipe, and one missing from the compatibility file is never selected.
+
+To use one recipe file as is, for example on a machine without the target accelerators, pass it with `--recipe-path`
+or `AIMFT_RECIPE_PATH`. This skips the recipe catalog and the compatibility checks, but the recipe must still match the
+requested model, method, and accelerator count:
 
 ```bash
 uv run aim_fine_tune train \
 	--dry-run \
-	--recipe-id aimfttk/sft/google-gemma-3-27b-it/lora/1gpu/default \
-	--allow-incompatible-recipe \
+	--recipe-path recipes/aimfttk/sft/google/gemma-3-27b-it.yaml \
 	--model-path inputs/model \
 	--train-data-path inputs/data.jsonl \
 	--output-path outputs \
 	--aim-model-id google/gemma-3-27b-it
 ```
-
-This bypass only applies to dry-run. The recipe id, model id, and accelerator count still need to line up.
-
-By default the CLI looks for recipes in `/workspace/recipes` first and falls back to the packaged `recipes/` directory.
-
-If the CLI is installed into another environment and the default recipe directories are not available there, copy the repository `recipes/` directory and point `--recipes-root` or `AIMFT_RECIPES_ROOT` at it.
 
 ## Render A Launch Workspace
 
@@ -163,6 +171,13 @@ The rendered launch workspace is written under the output directory. Runtime met
 - `runtime/launch-spec.json`
 - `runtime/run.sh`
 
+After `--execute`, the runtime also writes:
+
+- `runtime/train-status.json`: an atomic, timestamped `RUNNING`, `COMPLETED`, or `FAILED` status, refreshed every 10 seconds while training runs
+- `runtime/train.stdout.log`: captured training process stdout, written incrementally, including output hidden by `--json-logs`
+- `runtime/train.stderr.log`: captured training process stderr, written incrementally, including output hidden by `--json-logs`
+- `runtime/train-report.json`: detected accelerators, initial/final train and validation losses, wall-clock duration, and average tokens/GPU/second over time spent training, excluding validation. Losses and throughput come from the last numbered `checkpoints/checkpoint-*/trainer_state.json` when present, otherwise from `train_metrics` events in `runtime/train.stdout.log`. Intermediate step metrics are the JSON Lines on stdout.
+
 Backend config files remain under the existing config directory:
 
 - `configs/accelerate_config.yaml`
@@ -170,6 +185,32 @@ Backend config files remain under the existing config directory:
 - `configs/entrypoint.sh`
 
 Training outputs are written under the output directory, including checkpoint content and final model artifacts.
+
+Pass `--json-logs` (or set `AIMFT_JSON_LOGS=true`) to suppress the engine's human-readable output on
+stdout and emit JSON Lines instead. Training updates look like:
+
+```json
+{"event":"train_metrics","train_loss":2.412,"step":25,"elapsed_seconds":30.5,"tokens_seen":8192}
+```
+
+Runtime messages use the same stream:
+
+```json
+{"event":"log","level":"info","message":"Execution completed successfully."}
+```
+
+The output is JSON Lines: every event occupies one line. `elapsed_seconds` is Hugging Face's elapsed
+training-loop wall clock and therefore includes validation and checkpointing. This option changes only
+what is relayed to stdout; `runtime/train.stdout.log` and `runtime/train.stderr.log` always retain the complete
+engine output.
+
+At the end of every `--execute` run, including failed ones, the contents of `runtime/train-report.json` are also
+printed to stdout as a single JSON line, with or without `--json-logs`, so the report can be collected from
+container logs:
+
+```json
+{"event":"train_report","report":{"backend":"aimfttk","accelerators":["0x74a1"],"initialTrainLoss":2.5,"finalTrainLoss":1.1,"ranToCompletion":true,"...":"..."}}
+```
 
 ## Run With Environment Variables
 
@@ -185,6 +226,7 @@ export AIMFT_EPOCHS='1'
 export AIMFT_SEED='42'
 export AIMFT_EVALUATION_INTERVAL='1000'
 export AIMFT_LOGGING_INTERVAL='25'
+export AIMFT_JSON_LOGS='true'
 export AIMFT_PER_ACCELERATOR_BATCH_SIZE='1'
 export AIMFT_GRADIENT_ACCUMULATION='4'
 export AIMFT_NUM_ACCELERATORS='2'
@@ -194,10 +236,10 @@ uv run aim_fine_tune train
 
 ## Execute A Job
 
-Use `--execute` when the CLI is already running inside the target execution container and the expected mounts already exist.
+Use `--execute` when the CLI is already running inside the target execution container and the expected mounts already exist. Invoke the installed `aim_fine_tune` console script (for example `/usr/bin/aim_fine_tune`). Do not activate the wrapper virtual environment and do not use `uv run` for execute mode: those prepend the wrapper `bin/` to `PATH`, so engine tools that use `#!/usr/bin/env python3` would run under the wrapper interpreter.
 
 ```bash
-uv run aim_fine_tune train \
+aim_fine_tune train \
 	--execute \
 	--backend aimfttk \
 	--model-path inputs/model \
@@ -209,10 +251,11 @@ uv run aim_fine_tune train \
 Current execute mode assumptions:
 
 - the CLI is running inside the execution container
+- the CLI may run from its own virtual environment via the console-script shebang
+- `accelerate`, `aimfttk`, `python3`, and backend helper commands must already be
+  on the process `PATH` from the engine image; `--execute` does not rewrite `PATH`
 - `/local_resources/basemodel`, `/local_resources/input`, and `/workdir` are already mounted
 - generated config files can be written into `/configs`
-
-For cluster-side testing of the aimfttk backend against the silogen base image, see `examples/silogen-cli-debug-job.yaml`.
 
 ## Supported Engine Args
 

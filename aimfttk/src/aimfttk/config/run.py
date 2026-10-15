@@ -53,7 +53,7 @@ class MissingPadTokenStrategy(str, Enum):
 
 
 class ModelArguments(BaseConfig):
-    """These are passed to AutoModelForCausalLM.from_pretrained
+    """Arguments used to load a pretrained Transformers model.
 
     See parameter docstrings and help at:
     https://huggingface.co/docs/transformers/main/en/main_classes/model#transformers.PreTrainedModel.from_pretrained
@@ -81,7 +81,7 @@ class ModelArguments(BaseConfig):
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="allow")
 
-    silogen_extra_args: Dict[str, object] = Field(
+    aimfttk_extra_args: Dict[str, object] = Field(
         default_factory=dict,
         description="Don't specify directly - this gathers additional args passed to the model",
         exclude=True,
@@ -89,19 +89,26 @@ class ModelArguments(BaseConfig):
 
     @model_validator(mode="before")
     @classmethod
-    def handle_silogen_extra_args(cls, values):
-        """This gathers any additional args passed to the model that are not explicitly defined in the config, and puts them in silogen_extra_args. This is useful for passing on HF-specific args that we don't want to explicitly define in our config."""
-        if "silogen_extra_args" in values:
+    def handle_aimfttk_extra_args(cls, values):
+        """This gathers any additional args passed to the model that are not explicitly defined in the config, and puts them in aimfttk_extra_args. This is useful for passing on HF-specific args that we don't want to explicitly define in our config."""
+        if "aimfttk_extra_args" in values:
             raise ValueError(
-                "silogen_extra_args should not be passed directly, it is reserved for gathering extra args passed to the model. Please remove it from your config."
+                "aimfttk_extra_args should not be passed directly, it is reserved for gathering extra args passed to the model. Please remove it from your config."
             )
         known_keys = set(cls.model_fields.keys())
-        silogen_extra_args = {k: v for k, v in values.items() if k not in known_keys}
-        values["silogen_extra_args"] = silogen_extra_args
+        aimfttk_extra_args = {k: v for k, v in values.items() if k not in known_keys}
+        values["aimfttk_extra_args"] = aimfttk_extra_args
         return values
 
     # The datatype to use for model parameters
     dtype: Literal["auto"] | str | torch.dtype = "auto"
+
+    model_class: Literal[
+        "AutoModelForCausalLM",
+        "AutoModelForImageTextToText",
+        "AutoModelForMultimodalLM",
+        "AutoModelForSeq2SeqLM",
+    ] = "AutoModelForCausalLM"
 
     @classmethod
     def _str_to_dtype(cls, x: str) -> Literal["auto"] | torch.dtype:
@@ -246,10 +253,10 @@ class ModelArguments(BaseConfig):
         accelerate_state = PartialState()
 
         # Handle legacy torch_dtype key for backwards compatibility:
-        if "torch_dtype" in self.silogen_extra_args:
+        if "torch_dtype" in self.aimfttk_extra_args:
             # First check if dtype was also specified:
 
-            self.dtype = self._str_to_dtype(self.silogen_extra_args.pop("torch_dtype"))
+            self.dtype = self._str_to_dtype(self.aimfttk_extra_args.pop("torch_dtype"))
 
         # Deepspeed sets the device_map internally so device_map is automatically set only when Deepspeed is not active.
         if accelerate_state.distributed_type != DistributedType.DEEPSPEED:
@@ -261,8 +268,8 @@ class ModelArguments(BaseConfig):
                     self.device_map = "auto"
 
     def get_model_load_kwargs(self):
-        """Returns a dictionary that is ready to be passed to AutoModelForCausalLM.from_pretrained as **kwargs"""
-        return {**self.model_dump(exclude_unset=True), **self.silogen_extra_args}
+        """Returns kwargs for the configured Transformers auto-model class."""
+        return {**self.model_dump(exclude_unset=True), **self.aimfttk_extra_args}
 
 
 class TokenizerArguments(BaseConfig):

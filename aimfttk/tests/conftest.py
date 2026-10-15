@@ -77,7 +77,8 @@ def tiny_llama_model_and_tokenizer(tmp_path_factory):
 
     # Add a basic chat template (required by aimfttk)
     tokenizer.chat_template = (
-        "{{ bos_token }}{% for message in messages %}{{ message['content'] }}{% endfor %}{{ eos_token }}"
+        "{{ bos_token }}{% for message in messages %}{{ message['content'] }}{% endfor %}"
+        "{% if not add_generation_prompt %}{{ eos_token }}{% endif %}"
     )
 
     # 4. Save both to disk (so from_pretrained works)
@@ -132,7 +133,8 @@ def tiny_gemma2_model_and_tokenizer(tmp_path_factory):
 
     # Add a basic chat template (required by aimfttk)
     tokenizer.chat_template = (
-        "{{ bos_token }}{% for message in messages %}{{ message['content'] }}{% endfor %}{{ eos_token }}"
+        "{{ bos_token }}{% for message in messages %}{{ message['content'] }}{% endfor %}"
+        "{% if not add_generation_prompt %}{{ eos_token }}{% endif %}"
     )
 
     # 4. Save both to disk

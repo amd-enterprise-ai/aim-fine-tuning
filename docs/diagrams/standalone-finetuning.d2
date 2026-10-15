@@ -1,0 +1,26 @@
+...@_theme
+direction: right
+
+model: "Model PVC\nread-only" {class: infra}
+dataset: "Dataset PVC\nread-only" {class: infra}
+
+job: "Kubernetes Job\nstandalone-sft" {class: user}
+
+pod: "Training pod" {class: group
+  direction: right
+
+  sft: "SFT container\nAMD GPU training" {class: managed}
+  output: "Ephemeral output PVC\ncheckpoints and runtime files" {class: step}
+  shm: "emptyDir\n/dev/shm" {class: infra}
+}
+
+export: "Optional export sidecar" {class: managed}
+adapters: "Adapter export PVC\nfinal adapter retained" {class: resolved}
+
+job -> pod: creates
+model -> sft: "/model"
+dataset -> sft: "/data"
+sft -> output: "/output"
+shm -> sft: "/dev/shm"
+output -> export: "checkpoint-final-adapter"
+export -> adapters: "copies final adapter"

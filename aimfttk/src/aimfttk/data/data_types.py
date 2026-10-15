@@ -2,12 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-"""Definitions of the aimfttk data types
-
-This mirrors the silocore.datasets.data_types module. The types in that module inherit from DataPoint,
-which is a Beanie model. However, in training we simply want the actual data content, not the database-related
-metadata. Therefore, we define the same types here, but as Pydantic models.
-"""
+"""Definitions of the aimfttk data types"""
 
 from typing import Dict, List
 

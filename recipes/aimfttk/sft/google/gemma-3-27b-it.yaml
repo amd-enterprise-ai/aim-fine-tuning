@@ -1,0 +1,69 @@
+# Copyright © Advanced Micro Devices, Inc., or its affiliates.
+#
+# SPDX-License-Identifier: MIT
+
+metadata:
+  recipeId: "aimfttk/sft/google-gemma-3-27b-it/lora/1gpu/default"
+  backend: aimfttk
+  modelId: "google/gemma-3-27b-it"
+  aimId: "google/gemma-3-27b-it"
+  method: SFT
+  isAdapter: true
+  acceleratorCount: 1
+  sizing:
+    downloadsReservedSize: 80Gi
+    checkpointsReservedSize: 160Gi
+    memoryPerGpu: 192
+    cpuPerGpu: 8
+
+defaults:
+  epochs: 1
+  seed: 42
+  evaluation_interval: 1000
+  logging_interval: 25
+  learning_rate: 0.000005
+  learning_rate_warmup_steps: 100
+  per_accelerator_batch_size: 1
+  gradient_accumulation: 1
+  lora_alpha: 16
+  lora_dropout: 0.05
+  lora_rank: 64
+  max_context_length: 8192
+  save_interval: 500
+
+engine_args:
+  distributed_type: "auto-single-process"
+  finetuning_config:
+    data_conf:
+      chat_template_name: "keep-original"
+      missing_pad_token_strategy: "bos-repurpose"
+    training_args:
+      max_grad_norm: 1.0
+      weight_decay: 0.000001
+      optim: "adamw_torch"
+      lr_scheduler_type: cosine
+      logging_strategy: steps
+      bf16: true
+      report_to:
+      - none
+      push_to_hub: false
+      gradient_checkpointing: true
+      gradient_checkpointing_kwargs:
+        use_reentrant: false
+    peft_conf:
+      peft_type: "LORA"
+      task_type: "CAUSAL_LM"
+      peft_kwargs:
+        target_modules:
+        - q_proj
+        - k_proj
+        - v_proj
+        - o_proj
+        - up_proj
+        - down_proj
+        - gate_proj
+    run_conf:
+      model_args:
+        torch_dtype: bfloat16
+        attn_implementation: "flash_attention_2"
+      resume_from_checkpoint: auto

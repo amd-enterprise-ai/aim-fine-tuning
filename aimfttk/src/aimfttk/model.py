@@ -24,7 +24,9 @@ def get_model(model_name_or_path, model_load_kwargs, quantization_config=None):
         model_load_kwargs["quantization_config"] = quantization_config
     model = None
     try:
-        model = transformers.AutoModelForCausalLM.from_pretrained(model_name_or_path, **model_load_kwargs)
+        model_class_name = model_load_kwargs.pop("model_class", "AutoModelForCausalLM")
+        model_class = getattr(transformers, model_class_name)
+        model = model_class.from_pretrained(model_name_or_path, **model_load_kwargs)
     except ImportError as e:
         # Try to intercept those misleading error messages from cases where the Flash Attention import fails
         # because of CUDA not being available,

@@ -467,12 +467,13 @@ run_conf:
     assert np.isclose(trainer_state["log_history"][0]["rewards/margins"], 0.0, atol=0.05)
     # But they rise to >0.2 by 25 steps (or stay close to 0 with newer TRL versions)
     # Find the last training entry (skip eval entries)
-    last_margins = next(
-        (entry["rewards/margins"] for entry in reversed(trainer_state["log_history"]) if "rewards/margins" in entry),
-        0.0,
-    )
+    margin_entries = [
+        entry["rewards/margins"] for entry in reversed(trainer_state["log_history"]) if "rewards/margins" in entry
+    ]
+    assert margin_entries, "DPO log history contains no rewards/margins metric"
+    last_margins = margin_entries[0]
     # With transformers v5 and newer TRL, margins behavior may differ - relaxed threshold
-    assert last_margins >= 0.0  # At minimum, should not be negative
+    assert last_margins >= 0.2  # At minimum, should not be negative
 
 
 def test_generate(tmpdir, tiny_gemma2_model_and_tokenizer):

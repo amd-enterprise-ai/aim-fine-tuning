@@ -4,17 +4,21 @@
 
 [project]
 name = "aim_fine_tune"
-version = "0.2.3"
+version = "0.5.2"
 description = "AIM fine-tuning cli"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    #"aim-build",
-    "boto3>=1.39.0",
+    "aim-build",
     "click>=8.3.3",
-    "huggingface_hub>=1.0",
+    "huggingface_hub>=0.34.0",
     "pydantic>=2.13.4",
     "PyYAML>=6.0.2",
+]
+
+[project.optional-dependencies]
+download = [
+    "boto3>=1.39.0",
 ]
 
 [dependency-groups]
@@ -24,6 +28,7 @@ dev = [
 
 [project.scripts]
 aim_fine_tune = "aim_fine_tune.cli:app"
+aim_fine_tune_download = "aim_fine_tune.extras.download:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -33,7 +38,9 @@ build-backend = "hatchling.build"
 packages = ["src/aim_fine_tune"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src", "../third_party/aim-build/src"]
+pythonpath = ["src"]
+addopts = "-m 'not download'"
+markers = ["download: tests requiring the download command"]
 
 [tool.uv.sources]
-aim-build = { path = "../third_party/aim-build", editable = true }
+aim-build = { path = "third_party/aim-build", editable = true }
