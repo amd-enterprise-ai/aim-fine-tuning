@@ -6,12 +6,9 @@ SPDX-License-Identifier: MIT
 
 # Quickstart
 
-Run a fine-tuning job locally using an AIM Fine-tuning container. The container
-includes the CLI, training recipes and the training engine framework, and accelerator software required to run
-the job.
+Run a fine-tuning job locally using an AIMFT Image. The AIMFT Image includes the training recipes, the training engine, and the accelerator software required to run the job. Configure the job with environment variables.
 
-This example uses an AIM fine-tuning container that has the `aimfttk` training engine installed to run a supervised fine-tuning (SFT) job on the
-Gemma 3 27B IT model with LoRA training.
+This example uses an AIMFT Image that has the `aimfttk` training engine installed to run a supervised fine-tuning (SFT) job on the Gemma 3 27B IT model with LoRA training.
 
 ## Prerequisites
 
@@ -20,7 +17,7 @@ You need:
 - A Linux host with ROCm and Docker installed.
 - Access to an AMD GPU through `/dev/kfd` and `/dev/dri`.
 - A model and JSONL training dataset stored on the host.
-- The AIM Fine-tuning container image, such as the [`amdenterpriseai/aimft-aimfttk`](https://hub.docker.com/r/amdenterpriseai/aimft-aimfttk) image from DockerHub.
+- An AIMFT Image, such as [`amdenterpriseai/aimft-aimfttk`](https://hub.docker.com/r/amdenterpriseai/aimft-aimfttk) from Docker Hub.
 
 ## Prepare local inputs
 
@@ -35,22 +32,18 @@ training-job/
 └── outputs/
 ```
 
-The model directory and dataset are mounted read-only. The output directory is
-writable so checkpoints and runtime files remain on the host.
+The model directory and dataset are mounted read-only. The output directory is writable so checkpoints and runtime files remain on the host.
 
 ## Format the dataset
 
-The SFT dataset must be a JSONL file with one conversation per line. Each
-conversation contains a `messages` array with `role` and `content` fields:
+The SFT dataset must be a JSONL file with one conversation per line. Each conversation contains a `messages` array with `role` and `content` fields:
 
 ```json
 {"messages":[{"role":"system","content":"You are a helpful assistant."},{"role":"user","content":"What is fine-tuning?"},{"role":"assistant","content":"Fine-tuning adapts a pretrained model to a specific task or domain."}]}
 {"messages":[{"role":"user","content":"Name one benefit of fine-tuning."},{"role":"assistant","content":"It can improve performance on a target task using a focused dataset."}]}
 ```
 
-Conversations should use
-the roles expected by the selected model's chat template, typically `system`,
-`user`, and `assistant`.
+Conversations should use the roles expected by the selected model's chat template, typically `system`, `user`, and `assistant`.
 
 You could use [SiloAI/AMD-eAIrs-SFT-Demo-Data](https://huggingface.co/datasets/SiloAI/AMD-eAIrs-SFT-Demo-Data) sft-formatted demo dataset for running initial quickstart tests.
 
@@ -59,7 +52,7 @@ You could use [SiloAI/AMD-eAIrs-SFT-Demo-Data](https://huggingface.co/datasets/S
 From the `training-job` directory run the container
 
 ```bash
-export AIMFT_IMAGE=amdenterpriseai/aimft-aimfttk:<YOUR_TAG>
+export AIMFT_IMAGE=amdenterpriseai/aimft-aimfttk:0.2.3-0.2.0-rocmdefault
 
 mkdir -p outputs
 
@@ -77,9 +70,7 @@ docker run --rm \
   "$AIMFT_IMAGE"
 ```
 
-Training logs are printed in the terminal running Docker. To keep the
-container available for a later log command, omit `--rm`, assign a name with
-`--name aimft-sft`, and run:
+Training logs are printed in the terminal running Docker. To keep the container available for a later log command, omit `--rm`, assign a name with `--name aimft-sft`, and run:
 
 ```bash
 docker logs -f aimft-sft
@@ -87,13 +78,8 @@ docker logs -f aimft-sft
 
 ## Find the results
 
-When training finishes, inspect the host `outputs/` directory. It contains
-runtime metadata, the rendered engine configuration, checkpoints, and the
-final adapter or model. With adapter training enabled, the final adapter is
- written to `outputs/checkpoint-final-adapter`.
+When training finishes, inspect the host `outputs/` directory. It contains runtime metadata, the rendered engine configuration, checkpoints, and the final adapter or model. With adapter training enabled, the final adapter is written to `outputs/checkpoint-final-adapter`.
 
-The [standardized SFT image interface](reference/standard-sft-image-interface.md)
-documents all supported mount paths and environment variables.
+The [AIMFT Image interface](../reference/standard-sft-image-interface.md) documents the environment variables and output paths.
 
-For Kubernetes
-execution, see [Run standalone fine-tuning on Kubernetes](guides/standalone-finetuning.md).
+For Kubernetes execution, see [Run standalone fine-tuning on Kubernetes](standalone-finetuning.md).

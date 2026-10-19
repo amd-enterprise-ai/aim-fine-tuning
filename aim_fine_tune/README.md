@@ -26,21 +26,15 @@ If you are working from Windows, run the commands from WSL in the `aim_fine_tune
 uv sync
 uv run aim_fine_tune --help
 uv run aim_fine_tune train --help
-uv run aim_fine_tune download --help
 uv run aim_fine_tune list-recipes --help
-```
-
-To enable S3 dataset downloads, install the optional download dependency:
-
-```bash
-uv sync --extra download
 ```
 
 ## Commands
 
-- `aim_fine_tune download`: download a model snapshot and a dataset into local paths
 - `aim_fine_tune list-recipes`: show packaged recipes, optionally filtered to compatible ones
 - `aim_fine_tune train`: render a backend launch workspace or execute the backend command
+
+The CLI may also permit `debug-download` for fetching a model or dataset during development. It is not a feature for production use. S3 downloads need the optional dependency: `uv sync --extra download`.
 
 ## Required Inputs For `train`
 
@@ -60,7 +54,7 @@ Common optional inputs:
 | `--extra-recipes` | `AIMFT_EXTRA_RECIPES` | Directory of extra recipes added to the built-in ones |
 | `--recipe-path` | `AIMFT_RECIPE_PATH` | Use this recipe file directly, without the recipe catalog or compatibility checks |
 
-Training tuning and backend options are configured through environment variables such as `AIMFT_USE_ADAPTER`, `AIMFT_EPOCHS`, `AIMFT_SEED`, `AIMFT_EVALUATION_INTERVAL`, `AIMFT_LOGGING_INTERVAL`, `AIMFT_LEARNING_RATE`, `AIMFT_LEARNING_RATE_WARMUP_STEPS`, `AIMFT_PER_ACCELERATOR_BATCH_SIZE`, `AIMFT_GRADIENT_ACCUMULATION`, `AIMFT_LORA_ALPHA`, `AIMFT_LORA_DROPOUT`, `AIMFT_LORA_RANK`, `AIMFT_MAX_CONTEXT_LENGTH`, `AIMFT_NUM_ACCELERATORS`, and `AIMFT_ENGINE_ARGS`.
+Training tuning and backend options are configured through environment variables such as `AIMFT_USE_ADAPTER`, `AIMFT_EPOCHS`, `AIMFT_SEED`, `AIMFT_EVALUATION_INTERVAL`, `AIMFT_LOGGING_INTERVAL`, `AIMFT_LEARNING_RATE`, `AIMFT_LEARNING_RATE_WARMUP_STEPS`, `AIMFT_PER_ACCELERATOR_BATCH_SIZE`, `AIMFT_GRADIENT_ACCUMULATION`, `AIMFT_LORA_ALPHA`, `AIMFT_LORA_DROPOUT`, `AIMFT_LORA_RANK`, `AIMFT_MAX_CONTEXT_LENGTH`, and `AIMFT_ENGINE_ARGS`.
 
 CLI flags take precedence over environment variables.
 
@@ -72,50 +66,6 @@ For environment variables, string values can be passed directly. Non-string valu
 2. Inspect available recipes.
 3. Run `train` in dry-run mode to render the launch workspace.
 4. Run `train --execute` inside the target execution environment when you are ready to launch.
-
-## Download Assets
-
-Use `download` when the model comes from Hugging Face and the dataset comes from a Hugging Face dataset repository, S3, or MinIO.
-
-Model download inputs:
-
-| CLI flag | Environment variable | Meaning |
-| --- | --- | --- |
-| `--hf-model-id` | `AIMFT_HF_MODEL_ID` | Hugging Face model id |
-| `--model-output-path` | `AIMFT_MODEL_OUTPUT_PATH` | Local model output directory |
-| `--model-cache-dir` | `AIMFT_MODEL_CACHE_DIR` | Optional Hugging Face cache directory |
-| `--hf-token` | `AIMFT_HF_TOKEN` or `HF_TOKEN` | Hugging Face token |
-
-Dataset download inputs:
-
-| CLI flag | Environment variable | Meaning |
-| --- | --- | --- |
-| `--hf-dataset-id` | `AIMFT_HF_DATASET_ID` | Hugging Face dataset repository, downloaded whole; uses the model's token |
-| `--hf-dataset-revision` | `AIMFT_HF_DATASET_REVISION` | Optional dataset branch, tag, or commit |
-| `--dataset-s3-uri` | `AIMFT_DATASET_S3_URI` | Dataset source such as `s3://bucket/path`, instead of `--hf-dataset-id` |
-| `--dataset-output-path` | `AIMFT_DATASET_OUTPUT_PATH` | Local dataset output directory |
-| `--s3-endpoint-url` | `AIMFT_S3_ENDPOINT_URL`, `AWS_ENDPOINT_URL`, or `BUCKET_STORAGE_HOST` | S3 or MinIO endpoint |
-| `--s3-access-key-id` | `AIMFT_S3_ACCESS_KEY_ID`, `AWS_ACCESS_KEY_ID`, or `BUCKET_STORAGE_ACCESS_KEY` | Access key |
-| `--s3-secret-access-key` | `AIMFT_S3_SECRET_ACCESS_KEY`, `AWS_SECRET_ACCESS_KEY`, or `BUCKET_STORAGE_SECRET_KEY` | Secret key |
-| `--s3-session-token` | `AIMFT_S3_SESSION_TOKEN` or `AWS_SESSION_TOKEN` | Optional session token |
-| `--s3-region` | `AIMFT_S3_REGION`, `AWS_REGION`, or `AWS_DEFAULT_REGION` | Optional region |
-
-Example:
-
-```bash
-export HF_TOKEN='hf_xxx'
-export BUCKET_STORAGE_HOST='http://minio:9000'
-export BUCKET_STORAGE_ACCESS_KEY='minio-access'
-export BUCKET_STORAGE_SECRET_KEY='minio-secret'
-
-uv run aim_fine_tune download \
-	--hf-model-id google/gemma-3-27b-it \
-	--model-output-path inputs/model \
-	--dataset-s3-uri s3://default-bucket/path/to/dataset \
-	--dataset-output-path inputs/dataset
-```
-
-After the assets are staged locally, pass those paths to `train`.
 
 ## List Recipes
 
@@ -220,7 +170,7 @@ export AIMFT_TRAIN_DATA_PATH='inputs/data.jsonl'
 export AIMFT_OUTPUT_PATH='outputs'
 export AIM_MODEL_ID='amd/your-model-id'
 export AIMFT_RECIPE_ID='aimfttk/sft/google-gemma-3-27b-it/lora/1gpu/default'
-export AIMFT_ENGINE_ARGS='{"distributed_type":"auto-deepspeed-stage1","chat_template":"keep-original","merge_adapter":true}'
+export AIMFT_ENGINE_ARGS='{"distributed_type":"auto-deepspeed-stage1","merge_adapter":true}'
 export AIMFT_USE_ADAPTER='true'
 export AIMFT_EPOCHS='1'
 export AIMFT_SEED='42'
@@ -229,7 +179,6 @@ export AIMFT_LOGGING_INTERVAL='25'
 export AIMFT_JSON_LOGS='true'
 export AIMFT_PER_ACCELERATOR_BATCH_SIZE='1'
 export AIMFT_GRADIENT_ACCUMULATION='4'
-export AIMFT_NUM_ACCELERATORS='2'
 
 uv run aim_fine_tune train
 ```
@@ -252,12 +201,10 @@ Current execute mode assumptions:
 
 - the CLI is running inside the execution container
 - the CLI may run from its own virtual environment via the console-script shebang
-- `accelerate`, `aimfttk`, `python3`, and backend helper commands must already be
-  on the process `PATH` from the engine image; `--execute` does not rewrite `PATH`
-- `/local_resources/basemodel`, `/local_resources/input`, and `/workdir` are already mounted
-- generated config files can be written into `/configs`
+- `accelerate`, `aimfttk`, `python3`, and backend helper commands must already be on the process `PATH` from the engine image; `--execute` does not rewrite `PATH`
+- the model directory, dataset file, and output directory are the paths passed to the CLI
+- `aimfttk` writes generated config files under the output directory in `configs/`
 
 ## Supported Engine Args
 
-Backend-specific settings are passed through `AIMFT_ENGINE_ARGS` as a JSON object. These args follow the same structure as the `engine_args` field in the recipe metadata and are merged with the recipe defaults.
-```
+Backend-specific settings are passed through `AIMFT_ENGINE_ARGS` as a JSON object. These args follow the same structure as the `engine_args` field in the recipe and are merged over the recipe defaults. `aimfttk` accepts `distributed_type`, `merge_adapter`, and `finetuning_config`. Other top-level keys are rejected. Nested AIMFTTK settings, including the chat template, belong under `finetuning_config`.

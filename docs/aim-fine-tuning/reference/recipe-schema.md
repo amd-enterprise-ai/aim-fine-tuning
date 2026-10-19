@@ -6,30 +6,25 @@ SPDX-License-Identifier: MIT
 
 # Recipe schema
 
-A recipe is a YAML document with common fields used by the CLI and an
-engine-specific `engine_args` mapping consumed by the selected engine.
+A recipe is a YAML document with common fields read from the AIMFT Image environment and a backend-specific `engine_args` mapping consumed by the selected backend.
 
 ## Common structure
 
 The common top-level sections are:
 
-- `metadata`: recipe identity and compatibility requirements.
-- `defaults`: training defaults passed through the normalized training request.
-  The fields and values may be training-method-specific; the recipe's explicit
-  `metadata.method` determines how they are interpreted.
-- `engine_args`: engine-specific configuration. Its fields are defined by the
-  selected engine reference.
+- `metadata`: recipe identity and the request it can serve.
+- `defaults`: training defaults passed through the normalized training request. The fields and values may be training-method-specific. `metadata.method` determines how they are interpreted.
+- `engine_args`: backend-specific configuration. Its fields are defined by the selected backend reference.
 
 ```yaml
 metadata:
   recipeId: aimfttk/sft/google-gemma-3-27b-it/lora/1gpu/default
-  engine: aimfttk
+  backend: aimfttk
   modelId: google/gemma-3-27b-it
   aimId: google/gemma-3-27b-it
   method: SFT
   isAdapter: true
   acceleratorCount: 1
-  compatibleAccelerators: ["74a1", "74a9"]
 
 defaults:
   epochs: 1
@@ -37,13 +32,13 @@ defaults:
   per_accelerator_batch_size: 1
 
 engine_args:
-  distributed_type: auto-deepspeed-stage1
+  distributed_type: auto-single-process
 ```
 
-## Engine-specific fields
+`metadata.backend` is the backend name, for example `aimfttk`. It must match `AIMFT_BACKEND`. The `aimfttk` AIMFT Image defaults that variable to `aimfttk`.
 
-The CLI validates and forwards `engine_args` to the adapter selected by
-`metadata.engine`. Avoid using engine-specific fields that are equivalent to the default parameters available in the `defaults` section.
+Accelerator compatibility is not a metadata field. It is listed by recipe ID in `aimft-recipe-compatibility.yaml` next to the recipes. See [Recipes](../recipes.md) for the recipe fields, and [Mount your own recipes](../guides/mount-recipes.md) for mounting a file or a directory.
 
-See the [AIM Fine-tuning Toolkit engine reference](engines/aimfttk.md) for
-the currently supported `aimfttk` fields.
+## Backend-specific fields
+
+The AIMFT Image validates and forwards `engine_args` to the adapter selected by `metadata.backend`. Keep values that already have a `defaults` field out of `engine_args`.

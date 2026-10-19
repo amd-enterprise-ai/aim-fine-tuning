@@ -4,7 +4,7 @@
 
 [project]
 name = "aim_fine_tune"
-version = "0.5.2"
+version = "0.5.3"
 description = "AIM fine-tuning cli"
 readme = "README.md"
 requires-python = ">=3.12"

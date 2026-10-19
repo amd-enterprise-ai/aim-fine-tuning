@@ -36,12 +36,11 @@ Record the input claim names and paths. The example below assumes:
 - Model claim: `aimft-dev-model-google-gemma-3-27b-it`
 - Dataset claim: `aimft-dev-dataset-sft-demo-data`
 - Dataset path: `/data/sft-demo-data.jsonl`
+- AIMFT Image `docker.io/amdenterpriseai/aimft-aimfttk:0.2.3-0.2.0-rocmdefault`
 
 ## Deploy the training job
 
-Save the following manifest as `standalone-sft.yaml`. Replace the image,
-claim names, model ID, dataset path, storage class, and resource values for your
-environment before applying it.
+Save the following manifest as `standalone-sft.yaml`. Replace the AIMFT Image, claim names, model ID, dataset path, storage class, and resource values for your environment before applying it.
 
 ```yaml
 apiVersion: batch/v1
@@ -56,7 +55,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: sft
-          image: docker.io/amdenterpriseai/aimft-aimfttk:YOUR_TAG
+          image: docker.io/amdenterpriseai/aimft-aimfttk:0.2.3-0.2.0-rocmdefault
           imagePullPolicy: Always
           resources:
             requests:
@@ -306,7 +305,7 @@ kubectl logs deployment/gemma-aim -f
 ```
 
 Set `AIM_ADAPTER_MAX_RANK` to at least the LoRA rank used during training. The
-Gemma recipe and the corresponding `deploy-aim` override use rank `64`.
+Gemma recipe uses rank `64`.
 
 ### Create the Service
 

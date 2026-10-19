@@ -1,4 +1,4 @@
-# Copyright Ã‚Â© Advanced Micro Devices, Inc., or its affiliates.
+# Copyright © Advanced Micro Devices, Inc., or its affiliates.
 #
 # SPDX-License-Identifier: MIT
 
@@ -8,28 +8,18 @@ defaults:
 root: README
 subtrees:
   - entries:
-      - file: quickstart
-        title: Quickstart
-      - file: supported-models
-        title: Supported models
+      - file: recipes
+        title: Recipes
       - file: guides/guides
         title: Guides
         subtrees:
           - entries:
+              - file: guides/quickstart
+                title: Quickstart
+              - file: guides/mount-recipes
+                title: Mount your own recipes
               - file: guides/standalone-finetuning
                 title: Run standalone fine-tuning on Kubernetes
-      - file: concepts/concepts
-        title: Concepts
-        subtrees:
-          - entries:
-              - file: concepts/training-methods
-                title: Training methods
-              - file: concepts/cli
-                title: Command-line interface
-              - file: concepts/engines
-                title: Engines
-              - file: concepts/recipes
-                title: Recipes
       - file: reference/reference
         title: Reference
         subtrees:
@@ -39,9 +29,7 @@ subtrees:
                 subtrees:
                   - entries:
                       - file: reference/standard-sft-image-interface
-                        title: Standardized SFT image interface
-              - file: reference/cli
-                title: CLI reference
+                        title: SFT Interface
               - file: reference/recipe-schema
                 title: Recipe schema
               - file: reference/engines

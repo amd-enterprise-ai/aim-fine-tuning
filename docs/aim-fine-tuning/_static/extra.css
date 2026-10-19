@@ -18,9 +18,8 @@ header.common-header .navbar-toggler,
 }
 
 /* On desktop the AMD top bar already shows the project name, so don't also
-   mirror the header items into the left sidebar (removes a duplicate
-   "AIM Engine"). Freeing this vertical space also stops the sidebar from
-   overflowing into a scrollbar. */
+   mirror the header items into the left sidebar. Freeing this vertical space
+   also stops the sidebar from overflowing into a scrollbar. */
 @media (min-width: 960px) {
   .bd-sidebar-primary .sidebar-header-items {
     display: none;
@@ -51,15 +50,4 @@ html[data-theme="dark"] {
 .bd-content table.table td,
 .bd-content table.table th {
   overflow-wrap: break-word;
-}
-
-/* D2 diagrams ship as light + dark SVG pairs, swapped via <picture> +
-   prefers-color-scheme. Each SVG carries its own (light/dark) background, so we
-   only add a subtle bordered "figure card" frame and keep them from overflowing
-   on narrow viewports. */
-article img[src*="assets/diagrams/"] {
-  max-width: 100%;
-  height: auto;
-  border: 1px solid var(--pst-color-border, #d0d7de);
-  border-radius: 8px;
 }

@@ -9,12 +9,11 @@ preview matches the published umbrella site at
 https://enterprise-ai.docs.amd.com.
 
 This project also builds standalone and is aggregated into the umbrella
-AMDEnterpriseAISuiteDocs site, where the contents of ``docs/docs`` are rsynced
-under ``docs/aim-fine-tuning/`` (see
-``.github/workflows/sync-docs-to-central-repo.yml``) and built by that repo's
-own config. To keep both modes working: all internal links are relative ``.md``
-links, the table of contents lives in ``_toc.yml``, and nothing hardcodes the
-``aim-engine/`` prefix that only exists in the umbrella site.
+AMDEnterpriseAISuiteDocs site. ``.github/workflows/sync-docs-to-central-repo.yml``
+rsyncs ``docs/aim-fine-tuning/`` into that repository under
+``docs/aim-fine-tuning/``, excluding this ``conf.py``. The umbrella build uses
+its own root config. To keep both modes working: all internal links are
+relative ``.md`` links, and the table of contents lives in ``_toc.yml.in``.
 """
 
 import os
@@ -39,7 +38,7 @@ html_theme_options = {
     # The generic-flavor header shows "GitHub" and "Support" links; without a
     # repository_url they fall back to "#". Point them at the repo and its
     # new-issue page.
-    "repository_url": "https://github.com/amd-enterprise-ai/aim-engine",
+    "repository_url": "https://github.com/amdenterpriseai/aim-fine-tuning",
 }
 
 # Table of contents (sphinx-external-toc, configured by rocm-docs-core). The
@@ -81,22 +80,6 @@ html_title = project
 exclude_patterns = ["toctree.md"]
 
 
-def _copy_assets(app, exception):
-    """Copy assets/ to the output verbatim, preserving the "assets/diagrams/..."
-    path the pages reference (the same path GitHub uses). Diagrams are embedded
-    with raw-HTML <picture> elements for prefers-color-scheme light/dark
-    switching, which bypasses Sphinx's normal image collection.
-    """
-    import os
-    import shutil
-
-    if exception is not None or app.builder.name != "html":
-        return
-    src = os.path.join(app.srcdir, "assets")
-    if os.path.isdir(src):
-        shutil.copytree(src, os.path.join(app.outdir, "assets"), dirs_exist_ok=True)
-
-
 def setup(app):
     import logging
 
@@ -108,5 +91,3 @@ def setup(app):
             return "not found in projects" not in record.getMessage()
 
     logging.getLogger("sphinx.rocm_docs.projects").addFilter(_DropProjectsWarning())
-
-    app.connect("build-finished", _copy_assets)
